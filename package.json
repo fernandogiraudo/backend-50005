@@ -1,0 +1,12 @@
+{
+  "name": "backend-50005",
+  "version": "1.0.0",
+  "description": "",
+  "main": "actividad1.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
