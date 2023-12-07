@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Bienvenidoss!</h1>
+    <img src="img/cat.jpg" alt="gato" />
+
+    <h2>Agregar mascota:</h2>
+    <form action="/api/pets" method="post" enctype="multipart/form-data">
+        <label>Nombre: </label> <input name="name" type="text" />
+        <label>Tipo: </label> <input name="type" type="text" />
+        <label>Genero: </label> <input name="gender" type="text" />
+        <label>Imágen</label> <input name="file" type="file" />
+        <button type="submit">Agregar</button>
+    </form>
+</body>
+</html>
