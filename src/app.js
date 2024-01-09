@@ -1,37 +1,29 @@
-import express from "express";
-import handlebars from "express-handlebars";
-import viewsRoutes from "./routes/views.routes.js";
-import { Server } from "socket.io";
+import express from 'express';
+import mongoose from 'mongoose';
+import userRoutes from './routes/users.routes.js';
+import handlebars from 'express-handlebars';
+import viewsRoutes from './routes/views.routes.js';
+import studentRoutes from './routes/student.routes.js';
+import courseRoute from './routes/course.routes.js';
 
+const PORT = 8080;
 const app = express();
-const httpServer = app.listen(8080, () => {
-  console.log("Listening on " + 8080);
-});
-
-const io = new Server(httpServer);
-const messages = [];
-io.on('connection', (socket) => {
-    console.log('Nuevo socket conectado');
-
-    socket.on('message', data => {
-        messages.push(data);
-        io.emit('logMessages', messages);
-    });
-
-    socket.on('newUser', (data) => {
-      io.emit('newUserFound', data);
-    });
-
-    socket.on('user_new', data => {
-      socket.broadcast.emit('newConnection', data);
-    });
-});
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.engine("handlebars", handlebars.engine());
-app.set("views", "src/views");
-app.set("view engine", "handlebars");
+app.use(express.urlencoded({extended: true}));
+app.use(express.static('public'));
 
-app.use("/", viewsRoutes);
+app.engine('handlebars', handlebars.engine());
+app.set('views', 'src/views');
+app.set('view engine', 'handlebars');
+
+mongoose.connect('mongodb+srv://fergiraudo91:Luna.2024@coder.3hytpje.mongodb.net/coderpopulation');
+
+app.use('/api/users', userRoutes);
+app.use('/api/students', studentRoutes);
+app.use('/api/courses', courseRoute);
+app.use('/', viewsRoutes);
+
+app.listen(PORT, () => {
+    console.log(`Listenng on PORT ${PORT}`);
+});
