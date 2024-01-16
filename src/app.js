@@ -1,107 +1,99 @@
 import express from 'express';
-import { orderModel } from './model/order.model.js';
-import mongoose from 'mongoose';
-import { studentModel } from './model/students.model.js';
-import { userModel } from './model/users.model.js';
+import cookieParser from 'cookie-parser';
 import handlebars from 'express-handlebars';
-import viewsRoutes from './routes/views.routes.js';
+import session from 'express-session';
+import { auth } from './middleware/auth.js';
 
 const PORT = 8080;
 const app = express();
+
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-mongoose.connect('mongodb+srv://fergiraudo91:Luna.2024@coder.3hytpje.mongodb.net/coder');
+app.use(cookieParser('C0d3rh0us3'));
+app.use(express.static('public'));
 
-const hbs = handlebars.create({
-    runtimeOptions: {
-        allowProtoPropertiesByDefault: true
+app.use(session({
+    secret: 'C0d3rf0us3',
+    resave: true,
+    saveUninitialized: true
+}));
+
+app.get('/session', (req, res) => {
+    if(req.session.counter){
+        req.session.counter++;
+        res.send(`Hola ${req.session.user} Se ha visitado el sitio ${req.session.counter} veces`);
+    }
+    else{
+        req.session.counter = 1;
+        res.send('Bienvenido ' + req.session.user);
     }
 });
 
-app.engine('handlebars', hbs.engine);
+app.get('/actividad', (req, res) => {
+
+});
+
+app.get('/logout', (req, res) => {
+    req.session.destroy(err => {
+        if(!err) res.send({message: 'Logout Ok!'});
+        else res.status(400).send({err});
+    });
+});
+
+app.get('/login', (req, res) => {
+    const {userName, password} = req.query;
+    if(userName !== 'fergiraudo' || password !== '123'){
+        return res.status(401).send({message: 'user or password incorrect'});
+    }
+    req.session.user = userName;
+    req.session.password = password;
+    req.session.admin = true;
+    res.send({message: 'Login success'});
+});
+
+app.engine('handlebars', handlebars.engine());
 app.set('views', 'src/views');
 app.set('view engine', 'handlebars');
 
-app.get('/api/orders', async (req, res) => {
-    const {sizeReceived} = req.query;
-    console.log({sizeReceived});
-    const orders = await orderModel.aggregate([
-        {
-            $match: {size: sizeReceived}
-        },
-        {
-            $group: {_id: '$name', totalQuantity: {$sum: '$quantity'}, size: {$first: sizeReceived}}
-        },
-        {
-            $sort: {totalQuantity: -1}
-        },
-        {
-            $group: {_id: 1, orders: {$push: '$$ROOT'}}
-        },
-        {
-            $project: {
-                _id: 0,
-                orders: '$orders'
-            }
-        },
-        {
-            $merge: {
-                into: 'reports'
-            }
-        }
-    ]);
-
-    res.send({message: 'report generated'});
-})
-
-app.get('/api/students', async (req, res) => {
-    const students = await studentModel.aggregate([
-        {
-            $sort: {grade: -1}
-        },
-        {
-            $group: {
-                _id: '$group',
-                estudiantes: {$push: '$$ROOT'},
-                promedio_varones: {
-                    $avg: {
-                        $cond: {
-                            if: {$eq: ['$gender', 'Male']},
-                            then: '$grade',
-                            else: null
-                        }
-                    }
-                },
-                promedio_mujeres: {
-                    $avg: {
-                        $cond: {
-                            if: {$eq: ['$gender', 'Female']},
-                            then: '$grade',
-                            else: null
-                        }
-                    }
-                },
-                promedio_total: {$avg: '$grade'}
-            }
-        },
-        {
-            $group:{
-                _id: 0,
-                grupos: {$push: '$$ROOT'},
-                promedio_general: {$avg: '$promedio_total'}
-            }
-        }
-    ]);
-
-    res.send({students});
+app.get('/', auth, (req, res) => {
+    res.render('index');
 });
 
-app.get('/api/users', async (req, res) => {
-    const users = await userModel.paginate({gender: 'Female'}, {limit: 20, page: 1});
-    res.send({users});
+app.get('/setCookie', (req, res) => {
+    res.cookie('coderCokie', 'Esto es una cookie!!').send({message: 'Cookie seteada'});
 });
 
-app.use('/', viewsRoutes);
+app.get('/setSignedCookie', (req, res) => {
+    res.cookie('singedCookie', 'Una cookie firmada', {signed: true}).send('Cookie firmada');
+});
+
+app.get('/getSignedCookie', (req, res) => {
+    res.send(req.signedCookies);
+});
+
+app.get('/products', auth, (req, res) => {
+    const cookies = req.cookies;
+    if(!cookies.coderCokie){
+        return res.send({message: 'Iniciar sesion'});
+    }
+    else{
+        res.send({message: 'Sesion iniciada'});
+    }
+});
+
+app.post('/createCookie', (req, res) => {
+    const {nombre, correo} = req.body;
+    res.cookie('user', correo, {maxAge: 10000}).send({message: 'Cookie seteada'});
+});
+
+app.get('/getCookies', (req, res) => {
+    res.send(req.cookies);
+});
+
+app.get('/deleteCookies', (req, res) => {
+    res.clearCookie('coderCokie').send({message: 'Cookies borradas'});
+});
+
 
 app.listen(PORT, () => {
     console.log(`Listening on PORT ${PORT}`);
