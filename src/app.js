@@ -1,37 +1,45 @@
-import express from "express";
-import handlebars from "express-handlebars";
-import viewsRoutes from "./routes/views.routes.js";
-import { Server } from "socket.io";
+import MongoStore from 'connect-mongo';
+import express from 'express';
+import session from 'express-session';
+import FileStore from 'session-file-store';
+import handlebars from 'express-handlebars';
+import sessionRoutes from './routes/session.routes.js';
+import mongoose from 'mongoose';
+import viewRoutes from './routes/views.routes.js';
 
+const PORT = 8080;
+const fileStore = FileStore(session);
 const app = express();
-const httpServer = app.listen(8080, () => {
-  console.log("Listening on " + 8080);
-});
 
-const io = new Server(httpServer);
-const messages = [];
-io.on('connection', (socket) => {
-    console.log('Nuevo socket conectado');
+app.use(session({
+    secret: 'C0d3rh0us3',
+    store: MongoStore.create({
+        mongoUrl: 'mongodb+srv://fergiraudo91:Luna.2024@coder.3hytpje.mongodb.net/coder',
+    }),
+    resave: true,
+    saveUninitialized: true
+}));
 
-    socket.on('message', data => {
-        messages.push(data);
-        io.emit('logMessages', messages);
-    });
+mongoose.connect('mongodb+srv://fergiraudo91:Luna.2024@coder.3hytpje.mongodb.net/coder');
 
-    socket.on('newUser', (data) => {
-      io.emit('newUserFound', data);
-    });
-
-    socket.on('user_new', data => {
-      socket.broadcast.emit('newConnection', data);
-    });
+const hbs = handlebars.create({
+    runtimeOptions: {
+        allowProtoPropertiesByDefault: true
+    }
 });
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.engine("handlebars", handlebars.engine());
-app.set("views", "src/views");
-app.set("view engine", "handlebars");
+app.use(express.urlencoded({extended: true}));
 
-app.use("/", viewsRoutes);
+app.use(express.static('public'));
+app.engine('handlebars', hbs.engine);
+app.set('views', 'src/views');
+app.set('view engine', 'handlebars');
+
+app.use('/api/session', sessionRoutes);
+
+app.use('/', viewRoutes);
+
+app.listen(PORT, () => {
+    console.log(`Listenig on PORT ${PORT}`);
+});

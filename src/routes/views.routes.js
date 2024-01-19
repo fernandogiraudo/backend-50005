@@ -1,9 +1,19 @@
 import { Router } from "express";
+import { checkAuth, checkExistingUser } from "../middlewares/auth.js";
 
-const viewsRoutes = Router();
+const viewRoutes = Router();
 
-viewsRoutes.get('/', (req, res) => {
-    res.render('index');
+viewRoutes.get('/', checkAuth, (req, res) => {
+    const {user} = req.session;
+    res.render('index', user);
 });
 
-export default viewsRoutes;
+viewRoutes.get('/login', checkExistingUser, (req, res) => {
+    res.render('login');
+});
+
+viewRoutes.get('/register', checkExistingUser, (req, res) => {
+    res.render('register');
+})
+
+export default viewRoutes;
