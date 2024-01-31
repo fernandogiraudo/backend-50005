@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <form action="/api/session/login" method="post">
+        <label>Email: </label> <input type="email" name="email" id="emailInput" /> <br /> <br />
+        <label>Contraseña: </label> <input type="password" name="password" id="passwordInput" /> <br /> <br />
+        <button type="button" id="sessionBtn">Iniciar sesión</button>
+    </form>
+    <div id="loggedDiv"></div>
+    <script src="index.js"></script>
+</body>
+</html>
