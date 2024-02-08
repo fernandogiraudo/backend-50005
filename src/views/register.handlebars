@@ -1,0 +1,11 @@
+<h1>Registrate!</h1>
+
+<form action="/api/session/register" method="post">
+    <label>Nombre: </label> <input type="text" name="first_name" /> <br/><br/>
+    <label>Apellido: </label> <input type="text" name="last_name" /> <br/><br/>
+    <label>Email: </label> <input type="email" name="email" /> <br/><br/>
+    <label>Edad: </label> <input type="number" name="age" /> <br/><br/>
+    <label>Contraseña: </label> <input type="password" name="password" /> <br/><br/>
+    <button type="submit">Registrar</button>
+    <label>Ya tienes cuenta? </label><button type="button"><a href="/login">Iniciar sesión</a></button>
+</form>

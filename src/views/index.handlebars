@@ -1,9 +1,6 @@
-<div>
-    <h1>Bienvenidos a coderchat</h1>
-    <input id="chatBox" type="text" />
-    <p id="messageBox"></p>
-</div>
+<h2>Bienvenido {{first_name}}</h2>
+<h3>Email: {{email}}, Edad: {{age}}</h3>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="/socket.io/socket.io.js"></script>
-<script src="js/index.js"></script>
+<form action="/api/session/logout" method="post">
+    <button type="submit">Cerrar sesión</button>
+</form>
