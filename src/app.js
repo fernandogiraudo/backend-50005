@@ -2,6 +2,7 @@ import express from 'express';
 import userRoutes from './routes/users.routes.js';
 import ordersRoutes from './routes/orders.routes.js';
 import businessRoutes from './routes/business.routes.js';
+import mongoose from 'mongoose';
 
 const PORT = 8080;
 
@@ -12,6 +13,8 @@ app.use(express.urlencoded({extended: true}));
 app.use('/api/users', userRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/business', businessRoutes);
+
+mongoose.connect('mongodb+srv://fergiraudo91:Luna.2024@coder.3hytpje.mongodb.net/coder');
 
 
 app.listen(PORT, () => {
