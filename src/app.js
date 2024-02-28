@@ -3,12 +3,14 @@ import userRoutes from './routes/users.routes.js';
 import ordersRoutes from './routes/orders.routes.js';
 import businessRoutes from './routes/business.routes.js';
 import mongoose from 'mongoose';
+import cors from 'cors';
 
 const PORT = 8080;
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use(cors());
 
 app.use('/api/users', userRoutes);
 app.use('/api/orders', ordersRoutes);
