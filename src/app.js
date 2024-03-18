@@ -1,37 +1,39 @@
-import express from "express";
-import handlebars from "express-handlebars";
-import viewsRoutes from "./routes/views.routes.js";
-import { Server } from "socket.io";
+import express from 'express';
+import dotenv from 'dotenv';
+import { addLogger } from './utils/logger.js';
+
+dotenv.config();
+const PORT = 8080;
 
 const app = express();
-const httpServer = app.listen(8080, () => {
-  console.log("Listening on " + 8080);
+
+app.use(addLogger);
+app.get('/holamundo', (req, res) => {
+    res.send({message: 'Prueba!'});
+})
+app.get('/verlogs', (req, res) => {
+    req.logger.info('Hola soy un log de info');
+    req.logger.warning('Esto es un warning');
+    req.logger.error('Esto es un error');
+    req.logger.fatal('Esto es un error FATAL');
+    req.logger.debug('Esto es un debug');
+    res.send({message: 'Error de prueba!'});
 });
 
-const io = new Server(httpServer);
-const messages = [];
-io.on('connection', (socket) => {
-    console.log('Nuevo socket conectado');
-
-    socket.on('message', data => {
-        messages.push(data);
-        io.emit('logMessages', messages);
-    });
-
-    socket.on('newUser', (data) => {
-      io.emit('newUserFound', data);
-    });
-
-    socket.on('user_new', data => {
-      socket.broadcast.emit('newConnection', data);
-    });
+app.get('/operacionsencilla', (req, res) => {
+    let sum = 0;
+    for(let i=0; i<100000; i++){
+        sum+=i;
+    }
+    res.send({sum});
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static("public"));
-app.engine("handlebars", handlebars.engine());
-app.set("views", "src/views");
-app.set("view engine", "handlebars");
+app.get('/operacioncompleja', (req, res) => {
+    let sum = 0;
+    for(let i=0; i<5e8; i++){
+        sum+=i;
+    }
+    res.send({sum});
+})
 
-app.use("/", viewsRoutes);
+app.listen(PORT, () => console.log('Listeing on 8080'));

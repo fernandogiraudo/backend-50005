@@ -1,0 +1,3 @@
+[33mwarning[39m: Esto es un warning
+[35merror[39m: Esto es un error
+[31mfatal[39m: Esto es un error FATAL
